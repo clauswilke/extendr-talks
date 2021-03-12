@@ -1,0 +1,251 @@
+---
+title: "The extendr project: Integrating R and Rust"
+author: "Claus O. Wilke"
+date: "last updated: `r Sys.Date()`"
+params:
+  compile_rust: TRUE
+output:
+  xaringan::moon_reader:
+    css: [default, "Wilke-slides-theme.css"]
+    lib_dir: libs
+    nature:
+      ratio: '16:9'
+      highlightStyle: github
+      highlightLines: true
+      slideNumberFormat: ''
+      titleSlideClass: [center, middle]
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(comment = "")
+library(rextendr)
+```
+
+## Title
+
+--
+
+<img src = "resources/extendr-logo.svg", width = 20%, style = "vertical-align: middle;" /> **extendr:** Rust crate providing bindings to R
+
+--
+
+<img src = "resources/rextendr-hexlogo.svg", width = 15%, style = "vertical-align: middle; margin-left: 2.5%; margin-right: 2.5%;" /> **rextendr:** R package providing support for the extendr crate
+
+
+???
+
+The extendr logo and hexlogo are distributed under the terms of the [Creative Commons Attribution-ShareAlike 4.0 International license](https://creativecommons.org/licenses/by-sa/4.0/) (CC-BY-SA 4.0).
+
+[The R logo](https://www.r-project.org/logo/) by The R Foundation is licensed under [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+
+[The Rust logo](https://github.com/rust-lang/rust-artwork) by Rust Foundation is licensed under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+---
+
+<style>
+.move-down { margin-top: 9em; }
+</style>
+
+.move-down[
+## You don't need **rextendr** to write R packages using Rust
+]
+
+--
+
+(But it'll make your life easier)
+
+---
+class: middle center
+
+## Why you want to use R Markdown as a Rust developer
+
+---
+
+## How about executing compiled Rust code in your xaringan presentation?
+
+--
+
+.pull-left[
+
+**RMarkdown input**
+
+.tiny-font[
+````markdown
+`r ''````{extendr}
+let x = 5;
+let y = 7;
+let z = x*y;
+
+assert_eq!(z, 35);
+```
+````
+]]
+
+--
+
+.pull-right[
+**Rendered output**
+
+.tiny-font[
+```{extendr eval = params$compile_rust}
+let x = 5;
+let y = 7;
+let z = x*y;
+
+assert_eq!(z, 35);
+```
+]]
+
+--
+
+How do we know this actually got compiled and run?
+
+---
+
+## How about executing compiled Rust code in your xaringan presentation?
+
+.pull-left[
+
+**RMarkdown input**
+
+.tiny-font[
+````markdown
+`r ''````{extendr}
+let x = 5;
+let y = 7;
+let z = x*y;
+
+assert_eq!(z, 35);
+
+// No semicolon,
+// value is returned to R
+z
+```
+````
+]]
+
+
+.pull-right[
+**Rendered output**
+
+.tiny-font[
+```{extendr eval = params$compile_rust}
+let x = 5;
+let y = 7;
+let z = x*y;
+
+assert_eq!(z, 35);
+
+// No semicolon,
+// value is returned to R
+z
+```
+]]
+
+
+---
+
+## Chaining multiple Rust chunks together
+
+--
+
+.pull-left[
+
+**RMarkdown input**
+
+.tiny-font[
+````markdown
+Define variable `x`:
+
+`r ''````{extendr A, eval = FALSE}
+let x = 1;
+```
+
+Define variable `y`:
+
+`r ''````{extendr B, eval = FALSE}
+let y = 2;
+```
+
+Print:
+
+`r ''````{extendr out, preamble = c("A", "B")}
+rprintln!("x = {}, y = {}", x, y);
+```
+````
+]]
+
+--
+
+.pull-right[
+
+**Rendered output**
+
+.tiny-font[
+
+Define variable `x`:
+
+```{extendr chunk_x, eval = FALSE}
+let x = 1;
+```
+
+Define variable `y`:
+
+```{extendr chunk_y, eval = FALSE}
+let y = 2;
+```
+
+Print:
+
+```{extendr out, eval = params$compile_rust, preamble = c("chunk_x", "chunk_y")}
+rprintln!("x = {}, y = {}", x, y);
+```
+]]
+
+
+
+---
+
+## Calling Rust code from R
+
+--
+
+.pull-left.tiny-font[
+```{extendrsrc eval = params$compile_rust}
+#[extendr]
+fn add_float(x: f64, y: f64) -> f64 {
+    x + y
+}
+
+struct Counter {
+    n: i32,
+}
+
+#[extendr]
+impl Counter {
+    fn new() -> Self { Self { n: 0 } }
+    
+    fn increment(&mut self) { self.n += 1; }
+    
+    fn get(&self) -> i32 { self.n }
+}
+```
+]
+
+--
+
+.pull-right.tiny-font[
+```{r eval = params$compile_rust}
+add_float(34.5, 64.2)
+
+x <- Counter$new()
+x$get()
+x$increment()
+x$increment()
+x$get()
+```
+]
+
+
+
