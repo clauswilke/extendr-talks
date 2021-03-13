@@ -3,7 +3,7 @@ title: "The extendr project: Integrating R and Rust"
 author: "Claus O. Wilke"
 date: "last updated: `r Sys.Date()`"
 params:
-  compile_rust: TRUE
+  compile_rust: FALSE
 output:
   xaringan::moon_reader:
     css: [default, "Wilke-slides-theme.css"]
@@ -22,7 +22,7 @@ knitr::opts_chunk$set(comment = "")
 library(rextendr)
 ```
 
-## Title
+## We're dealing with two distinct pieces
 
 --
 
@@ -40,6 +40,73 @@ The extendr logo and hexlogo are distributed under the terms of the [Creative Co
 [The R logo](https://www.r-project.org/logo/) by The R Foundation is licensed under [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
 [The Rust logo](https://github.com/rust-lang/rust-artwork) by Rust Foundation is licensed under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+---
+
+## Partners in crime
+
+<img src = "https://avatars.githubusercontent.com/u/1556316", width = "15%" /> &nbsp;&nbsp;&nbsp; [Andy Thomason](https://github.com/andy-thomason)
+
+--
+
+<img src = "https://avatars.githubusercontent.com/u/8782986", width = "10%" /> &nbsp;&nbsp;&nbsp; [Ilia Kosenkov](https://github.com/Ilia-Kosenkov)
+<img src = "https://avatars.githubusercontent.com/u/1978793", width = "10%", style = "margin-left: .5in;"/> &nbsp;&nbsp;&nbsp; [Hiroaki Yutani](https://github.com/yutannihilation)
+<img src = "https://avatars.githubusercontent.com/u/4706822
+", width = "10%", style = "margin-left: .5in;"/> &nbsp;&nbsp;&nbsp; [Daniel Falbel](https://github.com/dfalbel)
+
+
+and [many others](https://github.com/extendr/extendr/graphs/contributors)
+
+
+---
+
+## Benefits of Rust
+
+--
+
+- Compiled, performance of C
+
+--
+
+- Compiler protects against undefined behavior
+
+--
+
+- Modern abstractions: generics, containers, functional programming
+
+--
+
+- Powerful macro programming language
+
+--
+
+- Integrated build environment, dependency management
+
+--
+
+- Built-in framework for unit tests
+
+--
+
+- Built-in framework for documentation and distribution
+
+--
+
+## but ...
+
+
+---
+background-image: url("https://source.unsplash.com/_37crDvsAqE/")
+background-position: right
+background-size: contain
+
+# <br>Learning Rust can be<br>a bit of a climb
+
+???
+
+Photo credit:  
+[Tommy Lisbin](https://unsplash.com/@tlisbin)  
+https://unsplash.com/photos/_37crDvsAqE
 
 ---
 
@@ -247,5 +314,103 @@ x$get()
 ```
 ]
 
+
+---
+
+---
+
+## A simple Rust program: Multiples of 3 and 5
+
+.small-font[
+```rust
+fn main() {
+    let x = 1..;  // all integers from 1 to infininity
+    
+    let y:Vec<_> = x
+        .into_iter() // convert to iterator
+        .filter(     // filter out numbers divisible by 3 or 5
+            |z| z % 3 == 0 || z % 5 == 0
+        )
+        .take(10)    // keep the first 10
+        .collect();  // collect into vector
+        
+    println!("{:?}", y);
+    //println!("{:?}", x);
+}
+```
+]
+
+Run it on the [Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=ae012e466928d5adbb68b86ac7ffb43f)
+
+---
+
+## Fizbuzz
+
+.small-font[
+```rust
+fn buzz(i: i32) -> (i32, Option<&'static str>) {
+    match (i % 3, i % 5) {
+        (0, 0) => (i, Some("FizzBuzz")),
+        (0, _) => (i, Some("Fizz")),
+        (_, 0) => (i, Some("Buzz")),
+        (_, _) => (i, None),
+    }
+}
+
+fn main() {
+    for i in 1..16 {
+        println!("{:?}", buzz(i));
+    }
+}
+```
+]
+
+Run it on the [Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=00850f854bfb5a8248a9b506358662a2)
+
+---
+
+## Combining the two previous examples
+
+.xtiny-font[
+```rust
+fn buzz(i: i32) -> (i32, Option<&'static str>) {
+    match (i % 3, i % 5) {
+        (0, 0) => (i, Some("FizzBuzz")),
+        (0, _) => (i, Some("Fizz")),
+        (_, 0) => (i, Some("Buzz")),
+        (_, _) => (i, None),
+    }
+}
+
+fn main() {
+    let y: Vec<_> = (1..)
+        .into_iter() // convert to iterator
+        .map(buzz)   // run `buzz()` over each integer
+        .filter(     // retain interesting cases
+            |z| z.1.is_some(),
+        )
+        .take(10)    // keep the first 10
+        .collect();  // collect into vector
+
+    println!("{:?}", y);
+}
+```
+]
+
+Run it on the [Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=0984382148c0680b31bdf024981c0e7f)
+
+---
+
+## Resources
+
+- **extendr**
+  - [Release on crates.io](https://crates.io/crates/extendr-api)
+  - [Documentation (released version)](https://docs.rs/extendr-api/)
+  - [Documentation (in development)](https://extendr.github.io/extendr/extendr_api/)
+  - [Source repository](https://github.com/extendr/extendr)
+- **rextendr**
+  - Release on CRAN: coming soon
+  - [Pakackge website](https://extendr.github.io/rextendr/)
+  - [Source repository](https://github.com/extendr/rextendr)
 
 
