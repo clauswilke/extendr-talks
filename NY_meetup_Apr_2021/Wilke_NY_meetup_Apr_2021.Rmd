@@ -100,13 +100,104 @@ background-image: url("https://source.unsplash.com/_37crDvsAqE/")
 background-position: right
 background-size: contain
 
-# <br>Learning Rust can be<br>a bit of a climb
+# <br>Learning Rust can be<br>a steep climb
 
 ???
 
 Photo credit:  
 [Tommy Lisbin](https://unsplash.com/@tlisbin)  
 https://unsplash.com/photos/_37crDvsAqE
+
+---
+
+background-image: url("resources/code-screenshot.png")
+background-position: right
+background-size: 65%
+
+# <br>It's just like C++?
+
+
+---
+
+## A simple Rust program: Multiples of 3 and 5
+
+.tiny-font[
+```rust
+fn main() {
+    let x = 1..;  // all integers from 1 to infininity
+    
+    let y:Vec<_> = x
+        .into_iter() // convert to iterator
+        .filter(     // filter out numbers divisible by 3 or 5
+            |z| z % 3 == 0 || z % 5 == 0
+        )
+        .take(10)    // keep the first 10
+        .collect();  // collect into vector
+        
+    println!("{:?}", y);
+    //println!("{:?}", x);
+}
+```
+]
+
+Try it on the [Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=ae012e466928d5adbb68b86ac7ffb43f)
+
+---
+
+## Fizzbuzz in Rust
+
+.tiny-font[
+```rust
+fn buzz(i: i32) -> (i32, Option<&'static str>) {
+    match (i % 3, i % 5) {
+        (0, 0) => (i, Some("FizzBuzz")),
+        (0, _) => (i, Some("Fizz")),
+        (_, 0) => (i, Some("Buzz")),
+        (_, _) => (i, None),
+    }
+}
+
+fn main() {
+    for i in 1..16 {
+        println!("{:?}", buzz(i));
+    }
+}
+```
+]
+
+Try it on the [Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=00850f854bfb5a8248a9b506358662a2)
+
+---
+
+## Combining the two previous examples
+
+.xtiny-font[
+```rust
+fn buzz(i: i32) -> (i32, Option<&'static str>) {
+    match (i % 3, i % 5) {
+        (0, 0) => (i, Some("FizzBuzz")),
+        (0, _) => (i, Some("Fizz")),
+        (_, 0) => (i, Some("Buzz")),
+        (_, _) => (i, None),
+    }
+}
+
+fn main() {
+    let y: Vec<_> = (1..)
+        .into_iter() // convert to iterator
+        .map(buzz)   // run `buzz()` over each integer
+        .filter(     // retain interesting cases
+            |z| z.1.is_some(),
+        )
+        .take(10)    // keep the first 10
+        .collect();  // collect into vector
+
+    println!("{:?}", y);
+}
+```
+]
+
+Try it on the [Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=0984382148c0680b31bdf024981c0e7f)
 
 ---
 
@@ -314,90 +405,6 @@ x$get()
 ```
 ]
 
-
----
-
----
-
-## A simple Rust program: Multiples of 3 and 5
-
-.small-font[
-```rust
-fn main() {
-    let x = 1..;  // all integers from 1 to infininity
-    
-    let y:Vec<_> = x
-        .into_iter() // convert to iterator
-        .filter(     // filter out numbers divisible by 3 or 5
-            |z| z % 3 == 0 || z % 5 == 0
-        )
-        .take(10)    // keep the first 10
-        .collect();  // collect into vector
-        
-    println!("{:?}", y);
-    //println!("{:?}", x);
-}
-```
-]
-
-Run it on the [Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=ae012e466928d5adbb68b86ac7ffb43f)
-
----
-
-## Fizbuzz
-
-.small-font[
-```rust
-fn buzz(i: i32) -> (i32, Option<&'static str>) {
-    match (i % 3, i % 5) {
-        (0, 0) => (i, Some("FizzBuzz")),
-        (0, _) => (i, Some("Fizz")),
-        (_, 0) => (i, Some("Buzz")),
-        (_, _) => (i, None),
-    }
-}
-
-fn main() {
-    for i in 1..16 {
-        println!("{:?}", buzz(i));
-    }
-}
-```
-]
-
-Run it on the [Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=00850f854bfb5a8248a9b506358662a2)
-
----
-
-## Combining the two previous examples
-
-.xtiny-font[
-```rust
-fn buzz(i: i32) -> (i32, Option<&'static str>) {
-    match (i % 3, i % 5) {
-        (0, 0) => (i, Some("FizzBuzz")),
-        (0, _) => (i, Some("Fizz")),
-        (_, 0) => (i, Some("Buzz")),
-        (_, _) => (i, None),
-    }
-}
-
-fn main() {
-    let y: Vec<_> = (1..)
-        .into_iter() // convert to iterator
-        .map(buzz)   // run `buzz()` over each integer
-        .filter(     // retain interesting cases
-            |z| z.1.is_some(),
-        )
-        .take(10)    // keep the first 10
-        .collect();  // collect into vector
-
-    println!("{:?}", y);
-}
-```
-]
-
-Run it on the [Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=0984382148c0680b31bdf024981c0e7f)
 
 ---
 
