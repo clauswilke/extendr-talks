@@ -336,10 +336,28 @@ fn main() {
 Try it on the [Rust Playground](https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2018&amp;gist=0984382148c0680b31bdf024981c0e7f)
 
 ---
-class: middle, center
+class: top center
+background-image: url("resources/christina-wocintechchat-com-HocFQHhGjDE-unsplash.jpg")
+background-size: cover
+background-position: middle
 
 
-## How do we get Rust and R to talk to each other?
+&lt;style type="text/css"&gt;
+.text-on-image h2 {
+    text-shadow: 1px 0px 4px #fff, 0px -1px 4px #fff, 0px 1px 4px #fff, -1px 0px 4px #fff;
+    color: black;
+}
+&lt;/style&gt;
+
+.text-on-image[
+## &lt;br&gt;&lt;br&gt;&lt;br&gt;How do we get Rust and R to talk to each other?
+]
+
+???
+
+Photo credit:  
+[Christina @ wocintechchat.com](https://unsplash.com/@wocintechchat)  
+https://unsplash.com/photos/HocFQHhGjDE
 
 ---
 
@@ -445,8 +463,6 @@ add_float(34.5, 64.2)
 .tiny-font[
 
 ```rust
-use extendr_api::prelude::*;
-
 struct Counter {
     n: i32,
 }
@@ -492,7 +508,94 @@ x$get()
 
 ---
 
+## Calling R code from Rust
+
+--
+
+.tiny-font[
+
+```rust
+let data = R!(tibble::tibble(x = 1:5))?;
+
+data
+```
+
+```
+# A tibble: 5 x 1
+      x
+  &lt;int&gt;
+1     1
+2     2
+3     3
+4     4
+5     5
+```
+]
+
+
+---
+
+## Calling R code from Rust
+
+.tiny-font[
+
+```rust
+let data = R!(tibble::tibble(x = 1:5, y = 6:10))?;
+
+rprintln!("Contents of data: {:?}", data);
+```
+
+```
+Contents of data: r!(List([r!([1, 2, 3, 4, 5]), r!([6, 7, 8, 9, 10])]))
+```
+]
+
+---
+
+## Calling R code from Rust
+
+.tiny-font[
+
+```rust
+let data = R!(tibble::tibble(x = 1:5, y = 6:10))?;
+
+let iter = data.as_named_list_iter().ok_or("expected a list")?;
+rprintln!("Contents of iter: {:?}", iter);
+```
+
+```
+Contents of iter: Zip { a: ["x", "y"], b: [r!([1, 2, 3, 4, 5]), r!([6, 7, 8, 9, 10])] }
+```
+]
+
+---
+
+## Calling R code from Rust
+
+.tiny-font[
+
+```rust
+let data = R!(tibble::tibble(x = 1:5, y = 6:10))?;
+
+let iter = data.as_named_list_iter().ok_or("expected a list")?;
+rprintln!("Individual data columns:");
+for column in iter {
+    rprintln!("Column {:}: {:?}", column.0, column.1);
+};
+```
+
+```
+Individual data columns:
+Column x: r!([1, 2, 3, 4, 5])
+Column y: r!([6, 7, 8, 9, 10])
+```
+]
+
+---
+
 ## Explore Rust code from an R session with **rextendr**
+
+--
 
 .tiny-font[
 
@@ -666,6 +769,24 @@ rprintln!("x = {}, y = {}", x, y);
 x = 1, y = 2
 ```
 ]]
+
+
+---
+
+background-image: url("https://images.pexels.com/photos/37730/sunset-boat-sea-ship-37730.jpeg")
+background-size: cover
+class: center middle
+
+.text-on-image[
+## We overestimate what we can achieve in one year&lt;br&gt;&lt;br&gt;and underestimate what we can achieve in ten years
+]
+
+
+???
+
+Photo source here
+https://www.pexels.com/photo/sunset-ship-boat-sea-37730/
+
 
 ---
 
