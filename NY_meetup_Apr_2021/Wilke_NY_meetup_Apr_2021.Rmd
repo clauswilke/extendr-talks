@@ -553,7 +553,7 @@ x$get()
 
 .tiny-font[
 ```{extendr eval = params$compile_rust}
-let data = R!(tibble::tibble(x = 1:5))?;
+let data = R!(tibble::tibble(x = 1:5, y = 6:10))?;
 
 data
 ```
