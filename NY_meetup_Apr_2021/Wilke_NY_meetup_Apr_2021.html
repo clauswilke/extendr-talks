@@ -21,7 +21,7 @@ class: center, middle, title-slide
 
 
 
-background-image: url("https://images.pexels.com/photos/3990359/pexels-photo-3990359.jpeg")
+background-image: url("resources/pexels-rene-asmussen-3990359.jpg")
 background-size: cover
 class: center middle
 
@@ -47,6 +47,8 @@ class: center middle
 ---
 
 ## ggtext: Styling of ggplot text elements with inline CSS
+
+--
 
 
 
@@ -79,6 +81,8 @@ penguins %&gt;%
 ```
 ]
 
+--
+
 .xtiny-font.pull-right[
 ![](Wilke_NY_meetup_Apr_2021_files/figure-html/penguins-ggtext-out-1.svg)&lt;!-- --&gt;
 
@@ -106,6 +110,34 @@ p { text-align: center; padding-top: 2px;
     font-weight: bold;}"
 ```
 ]
+
+--
+
+.xtiny-font.pull-right[
+
+```r
+penguins %&gt;%
+  mutate(
+    facet_label = glue(
+"&lt;p class = '{species}'&gt;{species}&lt;/p&gt;"
+  )) %&gt;% ggplot() +
+  aes(x = flipper_length_mm, y = body_mass_g) + 
+  geom_point(aes(color = species)) +
+  scale_color_manual(
+    values = colors, guide = "none"
+  ) +
+  facet_wrap(~facet_label) +
+  theme_bw() + theme(
+    strip.text = element_html(
+      css = css, size = rel(1)
+    ),
+    strip.background = element_blank()
+  )
+```
+
+https://clauswilke.com/sinab/
+]
+
 
 ---
 
@@ -200,7 +232,7 @@ background-size: contain
 
 
 ---
-background-image: url("https://source.unsplash.com/_37crDvsAqE/")
+background-image: url("resources/tommy-lisbin-_37crDvsAqE-unsplash.jpg")
 background-position: right
 background-size: contain
 
@@ -332,6 +364,23 @@ The extendr logo and hexlogo are distributed under the terms of the [Creative Co
 
 ---
 
+## Partners in crime
+
+&lt;img src = "https://avatars.githubusercontent.com/u/1556316", width = "15%" /&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Andy Thomason](https://github.com/andy-thomason)
+
+--
+
+&lt;img src = "https://avatars.githubusercontent.com/u/8782986", width = "10%" /&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Ilia Kosenkov](https://github.com/Ilia-Kosenkov)
+&lt;img src = "https://avatars.githubusercontent.com/u/1978793", width = "10%", style = "margin-left: .5in;"/&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Hiroaki Yutani](https://github.com/yutannihilation)
+&lt;img src = "https://avatars.githubusercontent.com/u/4706822
+", width = "10%", style = "margin-left: .5in;"/&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Daniel Falbel](https://github.com/dfalbel)
+
+
+and [several others](https://github.com/extendr/extendr/graphs/contributors)
+
+
+---
+
 &lt;style&gt;
 .move-down { margin-top: 9em; }
 &lt;/style&gt;
@@ -346,28 +395,125 @@ The extendr logo and hexlogo are distributed under the terms of the [Creative Co
 
 ---
 
-## Partners in crime
-
-&lt;img src = "https://avatars.githubusercontent.com/u/1556316", width = "15%" /&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Andy Thomason](https://github.com/andy-thomason)
+## Calling Rust code from R: functions
 
 --
 
-&lt;img src = "https://avatars.githubusercontent.com/u/8782986", width = "10%" /&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Ilia Kosenkov](https://github.com/Ilia-Kosenkov)
-&lt;img src = "https://avatars.githubusercontent.com/u/1978793", width = "10%", style = "margin-left: .5in;"/&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Hiroaki Yutani](https://github.com/yutannihilation)
-&lt;img src = "https://avatars.githubusercontent.com/u/4706822
-", width = "10%", style = "margin-left: .5in;"/&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Daniel Falbel](https://github.com/dfalbel)
+.pull-left[
 
+**Rust code**
 
-and [many others](https://github.com/extendr/extendr/graphs/contributors)
+.tiny-font[
+
+```rust
+use extendr_api::prelude::*;
+
+#[extendr]
+fn add_float(x: f64, y: f64) -&gt; f64 {
+    x + y
+}
+```
+]]
+
+--
+
+.pull-right[
+
+**R code**
+
+.tiny-font[
+
+```r
+add_float(34.5, 64.2)
+```
+
+```
+[1] 98.7
+```
+]]
 
 ---
-class: middle center
 
-## Why you want to use R Markdown as a Rust developer
+## Calling Rust code from R: objects
+
+--
+
+.pull-left[
+
+**Rust code**
+
+.tiny-font[
+
+```rust
+use extendr_api::prelude::*;
+
+struct Counter {
+    n: i32,
+}
+
+#[extendr]
+impl Counter {
+    fn new() -&gt; Self { Self { n: 0 } }
+    
+    fn increment(&amp;mut self) { self.n += 1; }
+    
+    fn get(&amp;self) -&gt; i32 { self.n }
+}
+```
+]]
+
+--
+
+.pull-right[
+
+**R code**
+
+.tiny-font[
+
+```r
+x &lt;- Counter$new()
+x$get()
+```
+
+```
+[1] 0
+```
+
+```r
+x$increment()
+x$increment()
+x$get()
+```
+
+```
+[1] 2
+```
+]]
 
 ---
 
-## How about executing compiled Rust code in your xaringan presentation?
+## Explore Rust code from an R session with **rextendr**
+
+.tiny-font[
+
+```r
+library(rextendr)
+
+# create a Rust function
+rust_function("fn add(a:f64, b:f64) -&gt; f64 { a + b }")
+
+# call it from R
+add(2.5, 4.7)
+```
+
+```
+[1] 7.2
+```
+]
+
+---
+
+## Embed compiled Rust code in your RMarkdown
 
 --
 
@@ -409,7 +555,7 @@ How do we know this actually got compiled and run?
 
 ---
 
-## How about executing compiled Rust code in your xaringan presentation?
+## Embed compiled Rust code in your RMarkdown
 
 .pull-left[
 
@@ -447,6 +593,10 @@ assert_eq!(z, 35);
 // No semicolon,
 // value is returned to R
 z
+```
+
+```
+[1] 35
 ```
 ]]
 
@@ -511,54 +661,11 @@ Print:
 ```rust
 rprintln!("x = {}, y = {}", x, y);
 ```
+
+```
+x = 1, y = 2
+```
 ]]
-
-
-
----
-
-## Calling Rust code from R
-
---
-
-.pull-left.tiny-font[
-
-```rust
-#[extendr]
-fn add_float(x: f64, y: f64) -&gt; f64 {
-    x + y
-}
-
-struct Counter {
-    n: i32,
-}
-
-#[extendr]
-impl Counter {
-    fn new() -&gt; Self { Self { n: 0 } }
-    
-    fn increment(&amp;mut self) { self.n += 1; }
-    
-    fn get(&amp;self) -&gt; i32 { self.n }
-}
-```
-]
-
---
-
-.pull-right.tiny-font[
-
-```r
-add_float(34.5, 64.2)
-
-x &lt;- Counter$new()
-x$get()
-x$increment()
-x$increment()
-x$get()
-```
-]
-
 
 ---
 
