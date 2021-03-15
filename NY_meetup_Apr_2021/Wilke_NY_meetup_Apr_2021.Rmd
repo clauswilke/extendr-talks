@@ -22,40 +22,203 @@ knitr::opts_chunk$set(comment = "")
 library(rextendr)
 ```
 
-## We're dealing with two distinct pieces
+background-image: url("https://images.pexels.com/photos/3990359/pexels-photo-3990359.jpeg")
+background-size: cover
+class: center middle
 
---
+```{css echo = FALSE}
+.headline-text h1 {
+    text-shadow: 3px 0px 6px #fff, 0px -3px 6px #fff, 0px 3px 6px #fff, -3px 0px 6px #fff;
+    color: black;
+    font-size: 3.8em;
+    font-weight: bold;
+}
+```
 
-<img src = "resources/extendr-logo.svg", width = 20%, style = "vertical-align: middle;" /> **extendr:** Rust crate providing bindings to R
 
---
-
-<img src = "resources/rextendr-hexlogo.svg", width = 15%, style = "vertical-align: middle; margin-left: 2.5%; margin-right: 2.5%;" /> **rextendr:** R package providing support for the extendr crate
+.headline-text[
+# How did I get myself<br>into this mess?
+]
 
 
 ???
 
-The extendr logo and hexlogo are distributed under the terms of the [Creative Commons Attribution-ShareAlike 4.0 International license](https://creativecommons.org/licenses/by-sa/4.0/) (CC-BY-SA 4.0).
-
-[The R logo](https://www.r-project.org/logo/) by The R Foundation is licensed under [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-
-[The Rust logo](https://github.com/rust-lang/rust-artwork) by Rust Foundation is licensed under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+[Photo by Rene Asmussen from Pexels](https://www.pexels.com/photo/house-renovation-3990359/)
 
 ---
 
-## Partners in crime
+## ggtext: Styling of ggplot text elements with inline CSS
 
-<img src = "https://avatars.githubusercontent.com/u/1556316", width = "15%" /> &nbsp;&nbsp;&nbsp; [Andy Thomason](https://github.com/andy-thomason)
+```{r echo = FALSE, message = FALSE}
+library(tidyverse)
+library(palmerpenguins)
+library(glue)
+```
+
+.xtiny-font.pull-left[
+```{r penguins-ggtext, eval = FALSE}
+library(ggtext)
+
+colors <- c(
+  Adelie = "#FFAF6F", Chinstrap = "#B455F3",
+  Gentoo = "#4CA4A4"
+)
+
+penguins %>%
+  mutate(
+    style = glue("color: {colors[species]};"),
+    facet_label = glue(
+"<strong style='{style}'>{species}</strong>"
+  )) %>% ggplot() +
+  aes(x = flipper_length_mm, y = body_mass_g) + 
+  geom_point(aes(color = species)) +
+  scale_color_manual(
+    values = colors, guide = "none"
+  ) +
+  facet_wrap(~facet_label) +
+  theme_bw() + theme(
+    strip.text = element_markdown(size = rel(1)),
+    strip.background = element_blank()
+  )
+```
+]
+
+.xtiny-font.pull-right[
+```{r penguins-ggtext-out, ref.label = "penguins-ggtext", echo = FALSE, warning = FALSE, fig.width = 6, fig.asp = .5, dev = "svg"}
+```
+
+https://wilkelab.org/ggtext/
+]
+
+---
+
+## But I really want to be able to use CSS selectors
 
 --
 
-<img src = "https://avatars.githubusercontent.com/u/8782986", width = "10%" /> &nbsp;&nbsp;&nbsp; [Ilia Kosenkov](https://github.com/Ilia-Kosenkov)
-<img src = "https://avatars.githubusercontent.com/u/1978793", width = "10%", style = "margin-left: .5in;"/> &nbsp;&nbsp;&nbsp; [Hiroaki Yutani](https://github.com/yutannihilation)
-<img src = "https://avatars.githubusercontent.com/u/4706822
-", width = "10%", style = "margin-left: .5in;"/> &nbsp;&nbsp;&nbsp; [Daniel Falbel](https://github.com/dfalbel)
+.xtiny-font.pull-left[
+```{r eval = FALSE}
+css <- "
+.Adelie    { background-color: #FFAF6F; 
+             color: #303030; }
+.Chinstrap { background-color: #B455F3; 
+             color: #F0F0F0; }
+.Gentoo    { background-color: #4CA4A4;
+             color: #F0F0F0; }
 
+p { text-align: center; padding-top: 2px;
+    font-weight: bold;}"
+```
+]
 
-and [many others](https://github.com/extendr/extendr/graphs/contributors)
+---
+
+## But I really want to be able to use CSS selectors
+
+```{r sinab-setup, echo = FALSE, message = FALSE}
+library(rlang)
+library(sinab)  # remotes::install_github("clauswilke/sinab")
+
+# helper code that will eventually live in the ggtext package
+element_html <- function(css = NULL, family = NULL, face = NULL, size = NULL, colour = NULL, fill = NULL,
+                         linetype = NULL, linewidth = NULL, hjust = NULL, vjust = NULL, lineheight = NULL,
+                         margin = NULL, width = NULL, height = NULL, color = NULL, 
+                         debug = FALSE, inherit.blank = FALSE) {
+  if (!is.null(color))
+    colour <- color
+  
+  # doesn't work with other values at this time
+  hjust <- 0
+  vjust <- 1
+  
+  structure(
+    list(
+      css = css,
+      family = family, face = face, size = size, colour = colour, fill = fill,
+      linetype = linetype, linewidth = linewidth, hjust = hjust, vjust = vjust,
+      lineheight = lineheight, margin = margin, width = width, height = height,
+      debug = debug, inherit.blank = inherit.blank),
+    class = c("element_html", "element_text", "element")
+  )
+}
+
+element_grob.element_html <- function(element, label = "", x = NULL, y = NULL,
+                                      family = NULL, face = NULL, colour = NULL, size = NULL,
+                                      hjust = NULL, vjust = NULL, lineheight = NULL,
+                                      margin = NULL, ...) {
+  if (is.null(label))
+    return(ggplot2::zeroGrob())
+  
+  # for now we ignore hjust and vjust, it doesn't work yet
+  hj <- 0
+  vj <- 1
+  
+  css <- element$css %||% ""
+  
+  html_grob(
+    label, x = x, y = y, hjust = hj, vjust = vj,
+    width = element$width, height = element$height,
+    css = css
+  )
+}
+
+css <- "
+p { text-align: center; padding-top: 2px;}
+
+.Adelie { background-color: #FFAF6F; 
+          color: #303030; font-weight: bold;}
+.Chinstrap { background-color: #B455F3; 
+             color: #F0F0F0;  font-weight: bold; }
+.Gentoo { background-color: #4CA4A4;
+          color: #F0F0F0; font-weight: bold; }"
+```
+
+.xtiny-font.pull-left[
+```{r eval = FALSE}
+css <- "
+.Adelie    { background-color: #FFAF6F; 
+             color: #303030; }
+.Chinstrap { background-color: #B455F3; 
+             color: #F0F0F0; }
+.Gentoo    { background-color: #4CA4A4;
+             color: #F0F0F0; }
+
+p { text-align: center; padding-top: 2px;
+    font-weight: bold;}"
+```
+
+```{r penguins-sinab-out, ref.label = "penguins-sinab", echo = FALSE, warning = FALSE, fig.width = 6, fig.asp = .5, dev = "svg"}
+```
+]
+
+.xtiny-font.pull-right[
+```{r penguins-sinab, eval = FALSE}
+penguins %>%
+  mutate(
+    facet_label = glue(
+"<p class = '{species}'>{species}</p>"
+  )) %>% ggplot() +
+  aes(x = flipper_length_mm, y = body_mass_g) + 
+  geom_point(aes(color = species)) +
+  scale_color_manual(
+    values = colors, guide = "none"
+  ) +
+  facet_wrap(~facet_label) +
+  theme_bw() + theme(
+    strip.text = element_html(
+      css = css, size = rel(1)
+    ),
+    strip.background = element_blank()
+  )
+```
+
+https://clauswilke.com/sinab/
+]
+
+---
+background-image: url("resources/servo.png")
+background-position: center
+background-size: contain
 
 
 ---
@@ -200,6 +363,33 @@ fn main() {
 Try it on the [Rust Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=0984382148c0680b31bdf024981c0e7f)
 
 ---
+class: middle, center
+
+
+## How do we get Rust and R to talk to each other?
+
+---
+
+## The extendr project: Rust crate and R package
+
+--
+
+<img src = "resources/extendr-logo.svg", width = 20%, style = "vertical-align: middle;" /> **extendr:** Rust crate providing bindings to R
+
+--
+
+<img src = "resources/rextendr-hexlogo.svg", width = 15%, style = "vertical-align: middle; margin-left: 2.5%; margin-right: 2.5%;" /> **rextendr:** R package providing support for the extendr crate
+
+
+???
+
+The extendr logo and hexlogo are distributed under the terms of the [Creative Commons Attribution-ShareAlike 4.0 International license](https://creativecommons.org/licenses/by-sa/4.0/) (CC-BY-SA 4.0).
+
+[The R logo](https://www.r-project.org/logo/) by The R Foundation is licensed under [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+
+[The Rust logo](https://github.com/rust-lang/rust-artwork) by Rust Foundation is licensed under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+---
 
 <style>
 .move-down { margin-top: 9em; }
@@ -211,7 +401,23 @@ Try it on the [Rust Playground](https://play.rust-lang.org/?version=stable&mode=
 
 --
 
-(But it'll make your life easier)
+(But it'll make your life easier; think of it as **devtools** for **extendr**)
+
+---
+
+## Partners in crime
+
+<img src = "https://avatars.githubusercontent.com/u/1556316", width = "15%" /> &nbsp;&nbsp;&nbsp; [Andy Thomason](https://github.com/andy-thomason)
+
+--
+
+<img src = "https://avatars.githubusercontent.com/u/8782986", width = "10%" /> &nbsp;&nbsp;&nbsp; [Ilia Kosenkov](https://github.com/Ilia-Kosenkov)
+<img src = "https://avatars.githubusercontent.com/u/1978793", width = "10%", style = "margin-left: .5in;"/> &nbsp;&nbsp;&nbsp; [Hiroaki Yutani](https://github.com/yutannihilation)
+<img src = "https://avatars.githubusercontent.com/u/4706822
+", width = "10%", style = "margin-left: .5in;"/> &nbsp;&nbsp;&nbsp; [Daniel Falbel](https://github.com/dfalbel)
+
+
+and [many others](https://github.com/extendr/extendr/graphs/contributors)
 
 ---
 class: middle center

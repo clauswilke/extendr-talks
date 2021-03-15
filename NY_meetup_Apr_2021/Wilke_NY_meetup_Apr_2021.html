@@ -14,47 +14,152 @@ class: center, middle, title-slide
 
 # The extendr project: Integrating R and Rust
 ### Claus O. Wilke
-### last updated: 2021-03-14
+### last updated: 2021-03-15
 
 ---
 
 
 
 
-## We're dealing with two distinct pieces
+background-image: url("https://images.pexels.com/photos/3990359/pexels-photo-3990359.jpeg")
+background-size: cover
+class: center middle
 
---
+&lt;style type="text/css"&gt;
+.headline-text h1 {
+    text-shadow: 3px 0px 6px #fff, 0px -3px 6px #fff, 0px 3px 6px #fff, -3px 0px 6px #fff;
+    color: black;
+    font-size: 3.8em;
+    font-weight: bold;
+}
+&lt;/style&gt;
 
-&lt;img src = "resources/extendr-logo.svg", width = 20%, style = "vertical-align: middle;" /&gt; **extendr:** Rust crate providing bindings to R
 
---
-
-&lt;img src = "resources/rextendr-hexlogo.svg", width = 15%, style = "vertical-align: middle; margin-left: 2.5%; margin-right: 2.5%;" /&gt; **rextendr:** R package providing support for the extendr crate
+.headline-text[
+# How did I get myself&lt;br&gt;into this mess?
+]
 
 
 ???
 
-The extendr logo and hexlogo are distributed under the terms of the [Creative Commons Attribution-ShareAlike 4.0 International license](https://creativecommons.org/licenses/by-sa/4.0/) (CC-BY-SA 4.0).
-
-[The R logo](https://www.r-project.org/logo/) by The R Foundation is licensed under [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-
-[The Rust logo](https://github.com/rust-lang/rust-artwork) by Rust Foundation is licensed under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+[Photo by Rene Asmussen from Pexels](https://www.pexels.com/photo/house-renovation-3990359/)
 
 ---
 
-## Partners in crime
+## ggtext: Styling of ggplot text elements with inline CSS
 
-&lt;img src = "https://avatars.githubusercontent.com/u/1556316", width = "15%" /&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Andy Thomason](https://github.com/andy-thomason)
+
+
+.xtiny-font.pull-left[
+
+```r
+library(ggtext)
+
+colors &lt;- c(
+  Adelie = "#FFAF6F", Chinstrap = "#B455F3",
+  Gentoo = "#4CA4A4"
+)
+
+penguins %&gt;%
+  mutate(
+    style = glue("color: {colors[species]};"),
+    facet_label = glue(
+"&lt;strong style='{style}'&gt;{species}&lt;/strong&gt;"
+  )) %&gt;% ggplot() +
+  aes(x = flipper_length_mm, y = body_mass_g) + 
+  geom_point(aes(color = species)) +
+  scale_color_manual(
+    values = colors, guide = "none"
+  ) +
+  facet_wrap(~facet_label) +
+  theme_bw() + theme(
+    strip.text = element_markdown(size = rel(1)),
+    strip.background = element_blank()
+  )
+```
+]
+
+.xtiny-font.pull-right[
+![](Wilke_NY_meetup_Apr_2021_files/figure-html/penguins-ggtext-out-1.svg)&lt;!-- --&gt;
+
+https://wilkelab.org/ggtext/
+]
+
+---
+
+## But I really want to be able to use CSS selectors
 
 --
 
-&lt;img src = "https://avatars.githubusercontent.com/u/8782986", width = "10%" /&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Ilia Kosenkov](https://github.com/Ilia-Kosenkov)
-&lt;img src = "https://avatars.githubusercontent.com/u/1978793", width = "10%", style = "margin-left: .5in;"/&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Hiroaki Yutani](https://github.com/yutannihilation)
-&lt;img src = "https://avatars.githubusercontent.com/u/4706822
-", width = "10%", style = "margin-left: .5in;"/&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Daniel Falbel](https://github.com/dfalbel)
+.xtiny-font.pull-left[
+
+```r
+css &lt;- "
+.Adelie    { background-color: #FFAF6F; 
+             color: #303030; }
+.Chinstrap { background-color: #B455F3; 
+             color: #F0F0F0; }
+.Gentoo    { background-color: #4CA4A4;
+             color: #F0F0F0; }
+
+p { text-align: center; padding-top: 2px;
+    font-weight: bold;}"
+```
+]
+
+---
+
+## But I really want to be able to use CSS selectors
 
 
-and [many others](https://github.com/extendr/extendr/graphs/contributors)
+
+.xtiny-font.pull-left[
+
+```r
+css &lt;- "
+.Adelie    { background-color: #FFAF6F; 
+             color: #303030; }
+.Chinstrap { background-color: #B455F3; 
+             color: #F0F0F0; }
+.Gentoo    { background-color: #4CA4A4;
+             color: #F0F0F0; }
+
+p { text-align: center; padding-top: 2px;
+    font-weight: bold;}"
+```
+
+![](Wilke_NY_meetup_Apr_2021_files/figure-html/penguins-sinab-out-1.svg)&lt;!-- --&gt;
+]
+
+.xtiny-font.pull-right[
+
+```r
+penguins %&gt;%
+  mutate(
+    facet_label = glue(
+"&lt;p class = '{species}'&gt;{species}&lt;/p&gt;"
+  )) %&gt;% ggplot() +
+  aes(x = flipper_length_mm, y = body_mass_g) + 
+  geom_point(aes(color = species)) +
+  scale_color_manual(
+    values = colors, guide = "none"
+  ) +
+  facet_wrap(~facet_label) +
+  theme_bw() + theme(
+    strip.text = element_html(
+      css = css, size = rel(1)
+    ),
+    strip.background = element_blank()
+  )
+```
+
+https://clauswilke.com/sinab/
+]
+
+---
+background-image: url("resources/servo.png")
+background-position: center
+background-size: contain
 
 
 ---
@@ -199,6 +304,33 @@ fn main() {
 Try it on the [Rust Playground](https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2018&amp;gist=0984382148c0680b31bdf024981c0e7f)
 
 ---
+class: middle, center
+
+
+## How do we get Rust and R to talk to each other?
+
+---
+
+## The extendr project: Rust crate and R package
+
+--
+
+&lt;img src = "resources/extendr-logo.svg", width = 20%, style = "vertical-align: middle;" /&gt; **extendr:** Rust crate providing bindings to R
+
+--
+
+&lt;img src = "resources/rextendr-hexlogo.svg", width = 15%, style = "vertical-align: middle; margin-left: 2.5%; margin-right: 2.5%;" /&gt; **rextendr:** R package providing support for the extendr crate
+
+
+???
+
+The extendr logo and hexlogo are distributed under the terms of the [Creative Commons Attribution-ShareAlike 4.0 International license](https://creativecommons.org/licenses/by-sa/4.0/) (CC-BY-SA 4.0).
+
+[The R logo](https://www.r-project.org/logo/) by The R Foundation is licensed under [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+
+[The Rust logo](https://github.com/rust-lang/rust-artwork) by Rust Foundation is licensed under [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+---
 
 &lt;style&gt;
 .move-down { margin-top: 9em; }
@@ -210,7 +342,23 @@ Try it on the [Rust Playground](https://play.rust-lang.org/?version=stable&amp;m
 
 --
 
-(But it'll make your life easier)
+(But it'll make your life easier; think of it as **devtools** for **extendr**)
+
+---
+
+## Partners in crime
+
+&lt;img src = "https://avatars.githubusercontent.com/u/1556316", width = "15%" /&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Andy Thomason](https://github.com/andy-thomason)
+
+--
+
+&lt;img src = "https://avatars.githubusercontent.com/u/8782986", width = "10%" /&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Ilia Kosenkov](https://github.com/Ilia-Kosenkov)
+&lt;img src = "https://avatars.githubusercontent.com/u/1978793", width = "10%", style = "margin-left: .5in;"/&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Hiroaki Yutani](https://github.com/yutannihilation)
+&lt;img src = "https://avatars.githubusercontent.com/u/4706822
+", width = "10%", style = "margin-left: .5in;"/&gt; &amp;nbsp;&amp;nbsp;&amp;nbsp; [Daniel Falbel](https://github.com/dfalbel)
+
+
+and [many others](https://github.com/extendr/extendr/graphs/contributors)
 
 ---
 class: middle center
