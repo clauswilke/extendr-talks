@@ -576,6 +576,11 @@ rprintln!("Contents of data: {:?}", data);
 
 ## Calling R code from Rust
 
+```{extendr eval = FALSE echo = FALSE}
+as_named_list_iter() will be replaced with as_list().map(|l| l.iter())
+in a future extendr update
+```
+
 .tiny-font[
 ```{extendr eval = params$compile_rust}
 let data = R!(tibble::tibble(x = 1:5, y = 6:10))?;
