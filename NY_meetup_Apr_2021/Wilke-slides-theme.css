@@ -45,3 +45,60 @@ td {
 table {
   display: inline-block;
 }
+
+.width-10 {
+  width: 10%
+}
+.width-20 {
+  width: 20%
+}
+.width-30 {
+  width: 30%
+}
+.width-40 {
+  width: 40%
+}
+.width-50 {
+  width: 50%
+}
+.width-60 {
+  width: 60%
+}
+.width-70 {
+  width: 70%
+}
+.width-80 {
+  width: 80%
+}
+.width-90 {
+  width: 90%
+}
+
+.move-up-1em {
+  margin-top: -1em;
+}
+
+.move-up-2em {
+  margin-top: -2em;
+}
+
+.move-down-1em {
+  margin-top: 1em;
+}
+
+.move-down-2em {
+  margin-top: 2em;
+}
+
+
+.absolute-bottom-left {
+  position: absolute;
+  bottom: 0; 
+  left: 4em;
+}
+
+.absolute-bottom-right {
+  position: absolute;
+  bottom: 0; 
+  right: 4em;
+}

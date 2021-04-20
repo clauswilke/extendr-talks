@@ -3,11 +3,12 @@ title: "The extendr project: Integrating R and Rust"
 author: "Claus O. Wilke"
 date: "last updated: `r Sys.Date()`"
 params:
-  compile_rust: TRUE
+  compile_rust: true
 output:
   xaringan::moon_reader:
     css: [default, "Wilke-slides-theme.css"]
     lib_dir: libs
+    self_contained: true
     nature:
       ratio: '16:9'
       highlightStyle: github
@@ -559,6 +560,9 @@ data
 ```
 ]
 
+.absolute-bottom-right.small-font[
+Note: Valid for extendr 0.2. API will change somewhat with the next extendr release.
+]
 
 ---
 
@@ -572,11 +576,15 @@ rprintln!("Contents of data: {:?}", data);
 ```
 ]
 
+.absolute-bottom-right.small-font[
+Note: Valid for extendr 0.2. API will change somewhat with the next extendr release.
+]
+
 ---
 
 ## Calling R code from Rust
 
-```{extendr eval = FALSE echo = FALSE}
+```{extendr eval = FALSE, echo = FALSE}
 as_named_list_iter() will be replaced with as_list().map(|l| l.iter())
 in a future extendr update
 ```
@@ -588,6 +596,10 @@ let data = R!(tibble::tibble(x = 1:5, y = 6:10))?;
 let iter = data.as_named_list_iter().ok_or("expected a list")?;
 rprintln!("Contents of iter: {:?}", iter);
 ```
+]
+
+.absolute-bottom-right.small-font[
+Note: Valid for extendr 0.2. API will change somewhat with the next extendr release.
 ]
 
 ---
@@ -604,6 +616,10 @@ for column in iter {
     rprintln!("Column {:}: {:?}", column.0, column.1);
 };
 ```
+]
+
+.absolute-bottom-right.small-font[
+Note: Valid for extendr 0.2. API will change somewhat with the next extendr release.
 ]
 
 ---
@@ -802,6 +818,8 @@ https://www.pexels.com/photo/sunset-ship-boat-sea-37730/
   - [Documentation (released version)](https://docs.rs/extendr-api/)
   - [Documentation (in development)](https://extendr.github.io/extendr/extendr_api/)
   - [Source repository](https://github.com/extendr/extendr)
+
+
 - **rextendr**
   - Release on CRAN: coming soon
   - [Pakackge website](https://extendr.github.io/rextendr/)
